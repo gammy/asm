@@ -1,0 +1,2 @@
+http://eradicus.blogsome.com/2006/09/06/random-number-generator-in-16-bit-dos-assembly/
+

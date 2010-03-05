@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>~/code/asm/DOS/kb.asm.html</title>
+<meta name="Generator" content="Vim/7.1">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body bgcolor="#202020" text="#d0d0d0"><font face="monospace">
+;<span style="background-color: #202020"><font color="#d0d0a0">&nbsp;nasm -fbin -o kb.com kb.asm</font></span><br>
+<br>
+<span style="background-color: #202020"><font color="#7ee0ce">_waitms</font></span>&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">db</font></span>&nbsp;'<span style="background-color: #202020"><font color="#7ee0ce">Hit</font></span>&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">esc</font></span>&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">to</font></span>&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">exit</font></span>.', <span style="background-color: #202020"><font color="#87df71">10</font></span>, <span style="background-color: #202020"><font color="#87df71">13</font></span>, '$'<br>
+<br>
+[<span style="background-color: #202020"><font color="#7ee0ce">bits</font></span>&nbsp;<span style="background-color: #202020"><font color="#87df71">16</font></span>]<br>
+<span style="background-color: #202020"><font color="#7ee0ce">org</font></span>&nbsp;<span style="background-color: #202020"><font color="#87df71">0x100</font></span><br>
+<br>
+<span style="background-color: #202020"><font color="#7ee0ce">mov</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">ah</font></span>, <span style="background-color: #202020"><font color="#87df71">0x9</font></span><br>
+<span style="background-color: #202020"><font color="#7ee0ce">mov</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">dx</font></span>, <span style="background-color: #202020"><font color="#7ee0ce">_waitmsg</font></span><br>
+<span style="background-color: #202020"><font color="#7ee0ce">int</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#87df71">0x21</font></span><br>
+<br>
+<span style="background-color: #202020"><font color="#7ee0ce">mainloop</font></span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">call</font></span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">kbinput</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">jmp</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">mainloop</font></span><br>
+<br>
+<span style="background-color: #202020"><font color="#7ee0ce">kbinput</font></span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">xor</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">ax</font></span>, <span style="background-color: #202020"><font color="#7ee0ce">ax</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">mov</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">ah</font></span>, <span style="background-color: #202020"><font color="#87df71">1</font></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;<span style="background-color: #202020"><font color="#d0d0a0">&nbsp;Get keystroke status</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">int</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#87df71">0x16</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">jz</font></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">kbinput_end</font></span>&nbsp;;<span style="background-color: #202020"><font color="#d0d0a0">&nbsp;No key</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">mov</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">ah</font></span>, <span style="background-color: #202020"><font color="#87df71">0 </font></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;<span style="background-color: #202020"><font color="#d0d0a0">&nbsp;Get key</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">int</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#87df71">0x16</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">cmp</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">al</font></span>, <span style="background-color: #202020"><font color="#87df71">27</font></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;<span style="background-color: #202020"><font color="#d0d0a0">&nbsp;Is it esc?</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">jne</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">kbinput_end</font></span>&nbsp;;<span style="background-color: #202020"><font color="#d0d0a0">&nbsp;nope</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">call</font></span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">exit</font></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;<span style="background-color: #202020"><font color="#d0d0a0">&nbsp;yup</font></span><br>
+<span style="background-color: #202020"><font color="#7ee0ce">kbinput_end</font></span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">ret</font></span><br>
+<br>
+<span style="background-color: #202020"><font color="#7ee0ce">exit</font></span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">mov</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">ah</font></span>, <span style="background-color: #202020"><font color="#87df71">0x4c</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">mov</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#7ee0ce">al</font></span>, <span style="background-color: #202020"><font color="#87df71">0</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">int</font></span>&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color: #202020"><font color="#87df71">0x21</font></span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #202020"><font color="#7ee0ce">leave</font></span><br>
+<br>
+</font></body>
+</html>
