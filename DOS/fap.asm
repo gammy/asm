@@ -3,8 +3,8 @@
 ;
 ; nasm -l faphex.asm -f bin -o fap.com fap.asm
 ; a work in progress.
-; TODO: 
-; - sub x by xstep (not dec) (solve it)
+;
+; FIXMEs: parallax speeds, nicer colors (now, a lot = black!),re-rand on wrap
 
 [bits 16]
 
@@ -29,11 +29,13 @@ init_pal:
 	out	dx, al
 pal_loop:
 	mov	dx, 0x3c9
-	mov	al, 0			; because I want blue.
-	out	dx, al
-	out	dx, al
+	;mov	al, 0			; because I want blue.
+	;out	dx, al
+	;out	dx, al
 	mov	al, ah
 	shr	al, 2
+	out	dx, al			; fill white
+	out	dx, al			; -||-
 	out	dx, al
 	inc	ah
 	mov	al, ah
@@ -52,7 +54,8 @@ init_loop:
 	push	ax
 	call	RANDOM
 	xor	ah, ah
-	add	ax, 32			; hack ((320-256) >> 1) - centering.
+	;add	ax, 32			; hack ((320-256) >> 1) - centering.
+	shl	ax, 8
 	mov	[bx], word ax
 	pop	ax
 
@@ -71,12 +74,23 @@ init_loop:
 	add	bx, ax			; + offset
 	push	ax
 	call	RANDOM
-	mov	dl, al
-	mov	[bx], byte dl
+	;mov	dl, al
+
+	xor	dx, dx
+	mov	cx, word _star_layers 
+	div	cx			; dx = ax % cx 
+	shl	dx, 14
+
+	;mov	dx, 32767
+	;xor	dx, dx
+	mov	[bx], word dx
+	;mov	[bx], byte dl
 	pop	ax
+
 	; Color is based on xstep (parallax)
 	mov	bx, _color		; &color
 	add	bx, ax			; + offset
+	shr	dx, 8
 	mov	[bx], byte dl
 
 ; No vertical movement.
@@ -111,16 +125,24 @@ draw_clear:
 	push	word 0
 	call	plot			; fucking clear it!
 draw_update:
-	; Update
-	mov	bx, _x
-	mov	cx, _xstep
+	mov	bx, _xstep
+	add	bx, ax			; xstep offset
+	mov	dx, [bx]
+	shr	dx, 8			; dx = real xstep val
+	
+	mov	bx, _x			; x 
 	add	bx, ax			; x offset
-	;add	cx, ax			; xstep offset
-	;sub	word [bx], cx
-	dec	word [bx]
-	cmp	word [bx], 31		; hack
+
+	; Sub xstep from x
+	sub	word [bx], dx
+
+	cmp	word [bx], 0		; 31 (hack)
 	jg	draw_fill
-	add	word [bx], 256
+
+	mov	dx, 255 << 8		; far right
+	sub	dx, [bx]		; minus abs x
+
+	;add	word [bx], 65535; (255 << 8) 
 draw_fill:
 	; Set
 	mov	bx, _x
@@ -185,7 +207,14 @@ plot:
 	shl     ax, 8			; y << 8 (256)
 	shl     dx, 6			; y << 6 (64) (256+64=320)
 	add     ax, dx			; ax(y << 8) += dx(y << 6)
-	add     ax, [bp + 8]		; + x
+	;add     ax, [bp + 8]		; + x
+	;mov	dx, ax
+	push	dx
+	mov     dx, [bp + 8]		; + x
+	shr	dx, 8
+	add	dx, 32
+	add	ax, dx
+	pop	dx
 
 ;	mov	ax, 320			; width
 ;	mov	dx, [bp + 6]		; y
@@ -211,10 +240,11 @@ exit:
 
 %include 'random.inc'
 
-_star_count	equ	256
+_star_count	equ	512
+_star_layers	equ	4
 
 _x:	resw	_star_count
 _y:	resw	_star_count
-_xstep:	resb	_star_count
-_ystep:	resb	_star_count
+_xstep:	resw	_star_count
+_ystep:	resw	_star_count
 _color:	resb	_star_count
