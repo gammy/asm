@@ -1,5 +1,5 @@
 ; By gammy.
-; Random number generator by unknown author - see random.inc.
+; Random number generator segment by unknown author - see random.inc.
 ;
 ; nasm -l faphex.asm -f bin -o fap.com fap.asm
 ; a work in progress.
